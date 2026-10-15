@@ -1,0 +1,31 @@
+{
+  "extension_id": "meridian.enterprise.ai.usage",
+  "name": "Meridian Enterprise AI Usage & Governance",
+  "version": "1.0.0",
+  "description": "Gemini CLI extension for querying Vertex AI and Claude usage, top spenders, and managing group capabilities.",
+  "author": "Meridian Life Sciences Platform Team",
+  "entrypoint": {
+    "type": "mcp",
+    "command": "python",
+    "args": ["-m", "meridian.mcp.runner", "--env", "prod"]
+  },
+  "capabilities": {
+    "tools": [
+      "usage_summary",
+      "top_users",
+      "capability_status",
+      "set_capability"
+    ]
+  },
+  "environments": {
+    "prod": {
+      "MERIDIAN_ENV": "prod"
+    },
+    "staging": {
+      "MERIDIAN_ENV": "staging"
+    },
+    "dev": {
+      "MERIDIAN_ENV": "dev"
+    }
+  }
+}

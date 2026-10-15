@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meridian AI Platform — Usage & Admin Service</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --card-bg: #1e293b;
+      --card-border: #334155;
+      --text: #f8fafc;
+      --text-muted: #94a3b8;
+      --primary: #6366f1;
+      --primary-hover: #4f46e5;
+      --accent: #06b6d4;
+      --claude-color: #d97706;
+      --gemini-color: #3b82f6;
+      --danger: #ef4444;
+      --success: #10b981;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+      padding: 24px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+    .logo-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-badge {
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      width: 42px;
+      height: 42px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 20px;
+    }
+    .title h1 { font-size: 1.35rem; font-weight: 700; }
+    .title p { font-size: 0.85rem; color: var(--text-muted); }
+    .env-badge {
+      font-size: 0.75rem;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      text-transform: uppercase;
+      background: rgba(99, 102, 241, 0.2);
+      color: #818cf8;
+      border: 1px solid #6366f1;
+    }
+    .user-switcher {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: var(--card-bg);
+      padding: 8px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+    .user-switcher select {
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      cursor: pointer;
+    }
+    .role-tag {
+      font-size: 0.75rem;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+    }
+    .role-platform_admin { background: #831843; color: #f472b6; }
+    .role-team_lead { background: #1e3a8a; color: #60a5fa; }
+    .role-member { background: #374151; color: #9ca3af; }
+
+    .filter-bar {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      background: var(--card-bg);
+      padding: 14px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .filter-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filter-item label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .filter-item select {
+      background: #0f172a;
+      color: var(--text);
+      border: 1px solid var(--card-border);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+    }
+    .btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 6px 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 0.85rem;
+      transition: background 0.15s;
+    }
+    .btn:hover { background: var(--primary-hover); }
+
+    .grid-kpis {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .kpi-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 18px;
+    }
+    .kpi-title { font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; }
+    .kpi-value { font-size: 1.6rem; font-weight: 700; margin: 6px 0; }
+    .kpi-sub { font-size: 0.8rem; color: var(--text-muted); }
+
+    .platform-split {
+      display: flex;
+      gap: 12px;
+      margin-top: 8px;
+      font-size: 0.8rem;
+    }
+    .claude-pill { color: var(--claude-color); font-weight: 600; }
+    .gemini-pill { color: var(--gemini-color); font-weight: 600; }
+
+    .content-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--card-border);
+      padding-bottom: 8px;
+    }
+    .tab-btn {
+      background: none;
+      border: none;
+      color: var(--text-muted);
+      padding: 8px 16px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+    .tab-btn.active {
+      color: var(--text);
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+    }
+
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 20px;
+      display: none;
+    }
+    .panel.active { display: block; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    th { color: var(--text-muted); font-size: 0.8rem; text-transform: uppercase; }
+    tr:hover td { background: rgba(255, 255, 255, 0.02); }
+
+    /* Switch toggle */
+    .switch {
+      position: relative;
+      display: inline-block;
+      width: 44px;
+      height: 24px;
+    }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-color: #475569;
+      transition: .2s;
+      border-radius: 24px;
+    }
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 18px; width: 18px;
+      left: 3px; bottom: 3px;
+      background-color: white;
+      transition: .2s;
+      border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--success); }
+    input:checked + .slider:before { transform: translateX(20px); }
+    input:disabled + .slider { opacity: 0.4; cursor: not-allowed; }
+
+    .alert {
+      padding: 12px 16px;
+      border-radius: 6px;
+      margin-bottom: 16px;
+      font-size: 0.85rem;
+      display: none;
+    }
+    .alert-error {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid var(--danger);
+      color: #fca5a5;
+    }
+    .alert-success {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid var(--success);
+      color: #6ee7b7;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <div class="logo-group">
+      <div class="logo-badge">M</div>
+      <div class="title">
+        <h1>Meridian Life Sciences <span class="env-badge" id="envBadge">dev</span></h1>
+        <p>Enterprise AI Platform — Usage, Analytics & Capability Controls</p>
+      </div>
+    </div>
+    <div class="user-switcher">
+      <div>
+        <label style="font-size: 0.75rem; color: var(--text-muted); display: block;">Simulated Identity</label>
+        <select id="userSelect" onchange="switchUser(this.value)"></select>
+      </div>
+      <div>
+        <span id="userRoleBadge" class="role-tag role-team_lead">team_lead</span>
+        <div id="userGroupText" style="font-size: 0.75rem; color: var(--text-muted);">clinical-operations</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="alertBox" class="alert alert-error"></div>
+
+  <div class="filter-bar">
+    <div class="filter-item">
+      <label>Period:</label>
+      <select id="periodSelect" onchange="loadDashboard()">
+        <option value="last_7_days">Last 7 Days (Sep 21 – Sep 27)</option>
+        <option value="last_30_days" selected>Last 30 Days (Aug 29 – Sep 27)</option>
+        <option value="2026-W39">Week 39 (Sep 21 – Sep 27)</option>
+        <option value="2026-W38">Week 38 (Sep 14 – Sep 20)</option>
+        <option value="2026-W37">Week 37 (Sep 07 – Sep 13)</option>
+        <option value="2026-W36">Week 36 (Aug 31 – Sep 06)</option>
+        <option value="2026-W35">Week 35 (Aug 24 – Aug 30)</option>
+        <option value="2026-W34">Week 34 (Aug 17 – Aug 23)</option>
+        <option value="2026-W33">Week 33 (Aug 10 – Aug 16)</option>
+        <option value="2026-W32">Week 32 (Aug 03 – Aug 09)</option>
+        <option value="2026-09">Month: September 2026</option>
+        <option value="2026-08">Month: August 2026</option>
+      </select>
+    </div>
+    <div class="filter-item">
+      <label>Group Scope:</label>
+      <select id="groupSelect" onchange="loadDashboard()"></select>
+    </div>
+    <button class="btn" onclick="loadDashboard()">Refresh Data</button>
+  </div>
+
+  <div class="grid-kpis">
+    <div class="kpi-card">
+      <div class="kpi-title">Total Tokens</div>
+      <div class="kpi-value" id="kpiTokens">0</div>
+      <div class="platform-split">
+        <span class="claude-pill" id="kpiClaudeTokens">Claude: 0</span>
+        <span class="gemini-pill" id="kpiGeminiTokens">Gemini: 0</span>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Total Cost (USD)</div>
+      <div class="kpi-value" id="kpiCost">$0.00</div>
+      <div class="platform-split">
+        <span class="claude-pill" id="kpiClaudeCost">Claude: $0.00</span>
+        <span class="gemini-pill" id="kpiGeminiCost">Gemini: $0.00</span>
+      </div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Date Window</div>
+      <div class="kpi-value" style="font-size: 1.15rem;" id="kpiWindow">Loading...</div>
+      <div class="kpi-sub">End date relative to 2026-09-28</div>
+    </div>
+    <div class="kpi-card">
+      <div class="kpi-title">Governance Status</div>
+      <div class="kpi-value" style="font-size: 1.15rem;" id="kpiGovernance">Protected</div>
+      <div class="kpi-sub" id="kpiPerms">Usage: Allowed | Write: Admin</div>
+    </div>
+  </div>
+
+  <div class="content-tabs">
+    <button class="tab-btn active" onclick="showTab('summaryTab', this)">Platform Summary</button>
+    <button class="tab-btn" onclick="showTab('topUsersTab', this)">Top Users Leaderboard</button>
+    <button class="tab-btn" onclick="showTab('weeklyTab', this)">Weekly Trends</button>
+    <button class="tab-btn" onclick="showTab('capabilitiesTab', this)">Capability Controls</button>
+  </div>
+
+  <div id="summaryTab" class="panel active">
+    <h3>Usage and Cost by Platform</h3>
+    <table style="margin-top: 14px;">
+      <thead>
+        <tr>
+          <th>Platform</th>
+          <th>Requests</th>
+          <th>Input Tokens</th>
+          <th>Output Tokens</th>
+          <th>Total Tokens</th>
+          <th>Cost (USD)</th>
+        </tr>
+      </thead>
+      <tbody id="summaryTableBody">
+      </tbody>
+    </table>
+  </div>
+
+  <div id="topUsersTab" class="panel">
+    <h3>Top Seat Holders by Token Volume</h3>
+    <table style="margin-top: 14px;">
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Group</th>
+          <th>Total Tokens</th>
+          <th>Cost (USD)</th>
+        </tr>
+      </thead>
+      <tbody id="topUsersTableBody">
+      </tbody>
+    </table>
+  </div>
+
+  <div id="weeklyTab" class="panel">
+    <h3>Usage by Group & ISO Week (2026-W32 to 2026-W39)</h3>
+    <table style="margin-top: 14px;">
+      <thead>
+        <tr>
+          <th>Week</th>
+          <th>Group</th>
+          <th>Platform</th>
+          <th>Tokens</th>
+          <th>Cost (USD)</th>
+          <th>Requests</th>
+        </tr>
+      </thead>
+      <tbody id="weeklyTableBody">
+      </tbody>
+    </table>
+  </div>
+
+  <div id="capabilitiesTab" class="panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+      <div>
+        <h3>Group Capability Controls</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted);">
+          Enable or disable capabilities per group. Authorisation enforced based on active role and environment.
+        </p>
+      </div>
+      <button class="btn" onclick="loadCapabilities()">Refresh Controls</button>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Group</th>
+          <th>Capability</th>
+          <th>Status</th>
+          <th>Last Updated</th>
+          <th>Updated By</th>
+        </tr>
+      </thead>
+      <tbody id="capabilitiesTableBody">
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    let currentUser = null;
+    let directoryUsers = [];
+    let directoryGroups = [];
+
+    function showAlert(msg, isError = true) {
+      const box = document.getElementById('alertBox');
+      box.textContent = msg;
+      box.className = `alert ${isError ? 'alert-error' : 'alert-success'}`;
+      box.style.display = 'block';
+      setTimeout(() => { box.style.display = 'none'; }, 6000);
+    }
+
+    function showTab(panelId, btn) {
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById(panelId).classList.add('active');
+      btn.classList.add('active');
+      if (panelId === 'capabilitiesTab') {
+        loadCapabilities();
+      }
+    }
+
+    async function init() {
+      try {
+        const [usersRes, groupsRes] = await Promise.all([
+          fetch('/api/directory/users'),
+          fetch('/api/directory/groups')
+        ]);
+        directoryUsers = await usersRes.json();
+        directoryGroups = await groupsRes.json();
+
+        // Populate User Switcher
+        const userSelect = document.getElementById('userSelect');
+        userSelect.innerHTML = directoryUsers.map(u => 
+          `<option value="${u.email}">${u.name} (${u.role} — ${u.group_ids[0] || 'no group'})</option>`
+        ).join('');
+
+        // Populate Group Selector
+        const groupSelect = document.getElementById('groupSelect');
+        groupSelect.innerHTML = `<option value="">(All / Caller Default)</option>` +
+          directoryGroups.map(g => `<option value="${g.group_id}">${g.name}</option>`).join('');
+
+        // Default to Priya Nair (Team Lead)
+        userSelect.value = "priya.nair@meridianls.example";
+        await switchUser(userSelect.value);
+      } catch (err) {
+        showAlert("Initialization error: " + err.message);
+      }
+    }
+
+    async function switchUser(email) {
+      try {
+        const res = await fetch(`/api/me`, {
+          headers: { 'X-Actor-Email': email }
+        });
+        currentUser = await res.json();
+
+        document.getElementById('envBadge').textContent = currentUser.environment;
+        const roleBadge = document.getElementById('userRoleBadge');
+        roleBadge.textContent = currentUser.role;
+        roleBadge.className = `role-tag role-${currentUser.role}`;
+        document.getElementById('userGroupText').textContent = currentUser.primary_group || 'admin';
+
+        // Adjust group selector locking
+        const groupSelect = document.getElementById('groupSelect');
+        if (currentUser.permissions.group_visibility === 'own_group' && currentUser.role !== 'platform_admin') {
+          groupSelect.value = currentUser.primary_group;
+          groupSelect.disabled = true;
+        } else {
+          groupSelect.disabled = false;
+        }
+
+        document.getElementById('kpiPerms').textContent = 
+          `Usage: ${currentUser.permissions.can_read_usage ? 'Granted' : 'Denied'} | Write: ${currentUser.permissions.can_write_capabilities ? 'Granted' : 'Restricted'}`;
+
+        loadDashboard();
+      } catch (err) {
+        showAlert("Failed switching user: " + err.message);
+      }
+    }
+
+    async function loadDashboard() {
+      if (!currentUser) return;
+      const period = document.getElementById('periodSelect').value;
+      const group = document.getElementById('groupSelect').value;
+
+      let url = `/api/usage/summary?period=${encodeURIComponent(period)}`;
+      if (group) url += `&group=${encodeURIComponent(group)}`;
+
+      try {
+        const res = await fetch(url, {
+          headers: { 'X-Actor-Email': currentUser.email }
+        });
+
+        if (!res.ok) {
+          const errData = await res.json();
+          const reason = errData.detail?.reason || errData.detail || "Access Denied";
+          showAlert(reason, true);
+          document.getElementById('kpiTokens').textContent = '—';
+          document.getElementById('kpiCost').textContent = '—';
+          document.getElementById('summaryTableBody').innerHTML = `<tr><td colspan="6" style="color:var(--danger); text-align:center;">${reason}</td></tr>`;
+          return;
+        }
+
+        const data = await res.json();
+        renderSummary(data);
+        loadTopUsers(period, group);
+        loadWeekly();
+      } catch (err) {
+        showAlert(err.message, true);
+      }
+    }
+
+    function renderSummary(data) {
+      document.getElementById('kpiTokens').textContent = data.totals.total_tokens.toLocaleString();
+      document.getElementById('kpiCost').textContent = '$' + data.totals.cost_usd.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2});
+      document.getElementById('kpiWindow').textContent = `${data.period.start} to ${data.period.end_exclusive}`;
+
+      let claude = data.platforms.find(p => p.platform === 'claude') || { total_tokens: 0, cost_usd: 0 };
+      let gemini = data.platforms.find(p => p.platform === 'gemini') || { total_tokens: 0, cost_usd: 0 };
+
+      document.getElementById('kpiClaudeTokens').textContent = `Claude: ${claude.total_tokens.toLocaleString()}`;
+      document.getElementById('kpiGeminiTokens').textContent = `Gemini: ${gemini.total_tokens.toLocaleString()}`;
+      document.getElementById('kpiClaudeCost').textContent = `Claude: $${claude.cost_usd.toFixed(2)}`;
+      document.getElementById('kpiGeminiCost').textContent = `Gemini: $${gemini.cost_usd.toFixed(2)}`;
+
+      const tbody = document.getElementById('summaryTableBody');
+      tbody.innerHTML = data.platforms.map(p => `
+        <tr>
+          <td><strong style="color: ${p.platform === 'claude' ? 'var(--claude-color)' : 'var(--gemini-color)'}">${p.platform.toUpperCase()}</strong></td>
+          <td>${p.requests !== null ? p.requests.toLocaleString() : '<span style="color:var(--text-muted)">N/A (BigQuery)</span>'}</td>
+          <td>${p.input_tokens.toLocaleString()}</td>
+          <td>${p.output_tokens.toLocaleString()}</td>
+          <td><strong>${p.total_tokens.toLocaleString()}</strong></td>
+          <td><strong>$${p.cost_usd.toFixed(4)}</strong></td>
+        </tr>
+      `).join('');
+    }
+
+    async function loadTopUsers(period, group) {
+      let url = `/api/usage/top-users?period=${encodeURIComponent(period)}&limit=10`;
+      if (group) url += `&group=${encodeURIComponent(group)}`;
+
+      try {
+        const res = await fetch(url, { headers: { 'X-Actor-Email': currentUser.email } });
+        if (!res.ok) return;
+        const users = await res.json();
+        const tbody = document.getElementById('topUsersTableBody');
+        tbody.innerHTML = users.map((u, i) => `
+          <tr>
+            <td>#${i + 1}</td>
+            <td><strong>${u.name}</strong></td>
+            <td style="color: var(--text-muted);">${u.email || ''}</td>
+            <td><span class="role-tag" style="background:#334155;">${u.group}</span></td>
+            <td><strong>${u.total_tokens.toLocaleString()}</strong></td>
+            <td>$${u.cost_usd.toFixed(4)}</td>
+          </tr>
+        `).join('');
+      } catch (err) {}
+    }
+
+    async function loadWeekly() {
+      try {
+        const res = await fetch('/api/usage/by-group-and-week', {
+          headers: { 'X-Actor-Email': currentUser.email }
+        });
+        if (!res.ok) return;
+        const list = await res.json();
+        const tbody = document.getElementById('weeklyTableBody');
+        tbody.innerHTML = list.slice(0, 25).map(r => `
+          <tr>
+            <td><strong>${r.iso_week}</strong></td>
+            <td>${r.group_id}</td>
+            <td><span style="color:${r.platform==='claude'?'var(--claude-color)':'var(--gemini-color)'}">${r.platform}</span></td>
+            <td>${r.total_tokens.toLocaleString()}</td>
+            <td>$${r.cost_usd.toFixed(4)}</td>
+            <td>${r.requests !== null ? r.requests : '—'}</td>
+          </tr>
+        `).join('');
+      } catch (err) {}
+    }
+
+    async function loadCapabilities() {
+      try {
+        const res = await fetch('/api/capabilities', {
+          headers: { 'X-Actor-Email': currentUser.email }
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          showAlert(err.detail?.reason || "Denied capability list", true);
+          return;
+        }
+        const caps = await res.json();
+        const tbody = document.getElementById('capabilitiesTableBody');
+        tbody.innerHTML = caps.map(c => `
+          <tr>
+            <td><strong>${c.group}</strong></td>
+            <td><code>${c.capability}</code></td>
+            <td>
+              <label class="switch">
+                <input type="checkbox" ${c.enabled ? 'checked' : ''} 
+                  ${!currentUser.permissions.can_write_capabilities ? 'disabled' : ''}
+                  onchange="toggleCapability('${c.group}', '${c.capability}', this.checked)">
+                <span class="slider"></span>
+              </label>
+            </td>
+            <td style="font-size:0.8rem; color:var(--text-muted);">${c.updated_at ? new Date(c.updated_at).toLocaleString() : 'System Seed'}</td>
+            <td style="font-size:0.8rem; color:var(--text-muted);">${c.updated_by || 'system'}</td>
+          </tr>
+        `).join('');
+      } catch (err) {
+        showAlert(err.message, true);
+      }
+    }
+
+    async function toggleCapability(group, capability, enabled) {
+      try {
+        const res = await fetch('/api/capabilities', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Actor-Email': currentUser.email
+          },
+          body: JSON.stringify({ group, capability, enabled })
+        });
+        if (!res.ok) {
+          const err = await res.json();
+          const reason = err.detail?.reason || "Permission denied to update capability";
+          showAlert(reason, true);
+          loadCapabilities(); // revert switch
+          return;
+        }
+        showAlert(`Successfully updated ${capability} for ${group} to ${enabled ? 'ENABLED' : 'DISABLED'}`, false);
+        loadCapabilities();
+      } catch (err) {
+        showAlert(err.message, true);
+        loadCapabilities();
+      }
+    }
+
+    window.onload = init;
+  </script>
+</body>
+</html>

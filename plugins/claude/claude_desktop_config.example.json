@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "meridian-usage": {
+      "command": "python",
+      "args": ["-m", "meridian.mcp.runner", "--env", "prod"],
+      "env": {
+        "MERIDIAN_ENV": "prod",
+        "MERIDIAN_ACTOR_EMAIL": "priya.nair@meridianls.example"
+      }
+    }
+  }
+}

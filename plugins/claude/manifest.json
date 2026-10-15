@@ -1,0 +1,72 @@
+{
+  "schema_version": "v1",
+  "name_for_model": "meridian_usage_connector",
+  "name_for_human": "Meridian AI Usage & Governance Connector",
+  "description_for_model": "Allows staff and leads to inspect enterprise AI token usage, costs across Claude and Gemini, and manage group capability controls with strict RBAC scoping.",
+  "description_for_human": "View token usage, platform costs, top users, and capability controls for your team.",
+  "auth": {
+    "type": "none"
+  },
+  "api": {
+    "type": "mcp",
+    "transport": "stdio",
+    "command": "python",
+    "args": ["-m", "meridian.mcp.runner"]
+  },
+  "tools": [
+    {
+      "name": "usage_summary",
+      "description": "Returns AI token usage and costs across Claude and Gemini for a period and group.",
+      "parameters": {
+        "type": "object",
+        "required": ["period"],
+        "properties": {
+          "period": {
+            "type": "string",
+            "description": "last_7_days | last_30_days | ISO week (2026-W36) | month (2026-09)"
+          },
+          "group": {
+            "type": "string",
+            "description": "Optional group ID. Defaults to caller's own group."
+          }
+        }
+      }
+    },
+    {
+      "name": "top_users",
+      "description": "Rank seat holders by total token volume for a period.",
+      "parameters": {
+        "type": "object",
+        "required": ["period"],
+        "properties": {
+          "period": { "type": "string" },
+          "group": { "type": "string" },
+          "limit": { "type": "integer", "default": 10 }
+        }
+      }
+    },
+    {
+      "name": "capability_status",
+      "description": "Inspect enable/disable state of capabilities for a group.",
+      "parameters": {
+        "type": "object",
+        "properties": {
+          "group": { "type": "string" }
+        }
+      }
+    },
+    {
+      "name": "set_capability",
+      "description": "Enable or disable a capability for a group (requires admin permissions in production).",
+      "parameters": {
+        "type": "object",
+        "required": ["group", "capability", "enabled"],
+        "properties": {
+          "group": { "type": "string" },
+          "capability": { "type": "string", "enum": ["usage-connector", "web-search", "code-execution"] },
+          "enabled": { "type": "boolean" }
+        }
+      }
+    }
+  ]
+}
